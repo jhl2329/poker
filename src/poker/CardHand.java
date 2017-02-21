@@ -44,7 +44,7 @@ public class CardHand {
 		//Sort cardValue array from low to high
 		Arrays.sort(cardValues);
 		for(int i = 0; i < cardValues.length - 1 && isConsecutive; i++) {
-			if (cardValues[0] != cardValues[1] - 1) {
+			if (cardValues[i] != cardValues[i + 1] - 1) {
 				isConsecutive = false;
 			}
 		}

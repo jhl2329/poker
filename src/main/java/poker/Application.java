@@ -6,10 +6,13 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.smartcardio.Card;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by bryan on 2/21/2017.
@@ -20,15 +23,21 @@ public class Application {
         Logger logger = LoggerFactory.getLogger(Application.class);
         JSONParser  parser = new JSONParser();
         try {
+            BufferedReader br = new BufferedReader(new FileReader(args[0]));
             ArrayList<CardHand> handList = new ArrayList<CardHand>();
-
-            JSONArray jsonArray = (JSONArray)parser.parse(new FileReader(args[0]));
-
-            for(int i = 0; i < jsonArray.size(); i++) {
-                String s = jsonArray.get(i).toString();
-                String[] cardString = s.substring(1, s.length() -1).split(",");
-                handList.add(new CardHand(cardString));
+            String line;
+            while ((line = br.readLine()) != null) {
+                JSONArray jsonArray = (JSONArray)parser.parse(line);
+                ArrayList<String> handBuilder = new ArrayList<String>();
+                for(int i = 0; i < jsonArray.size(); i++) {
+                    String s = jsonArray.get(i).toString();
+                    handBuilder.add(s);
+                }
+//                logger.info(handBuilder.toString());
+//                logger.info(Arrays.toString(handBuilder.toArray(new String[0])));
+                handList.add(new CardHand(handBuilder.toArray(new String[0])));
             }
+
         }
         catch(FileNotFoundException e) {
             logger.error("File Not Found", e);

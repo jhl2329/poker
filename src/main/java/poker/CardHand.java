@@ -17,22 +17,21 @@ public class CardHand {
 		this.cards = cards.clone();
 		isSameSuit = true;
 		isConsecutive = true;
-		
+
 		//Determine if the cards are same suit or not
 		for(int i = 0; i < cards.length - 1 && isSameSuit; i++) {
 			//Card Layout: "10H"
-            char firstSuit = cards[i].charAt(cards[i].length() -2);
-            char secondSuit = cards[i+1].charAt(cards[i+1].length() -2);
+            char firstSuit = cards[i].charAt(cards[i].length() - 1);
+            char secondSuit = cards[i+1].charAt(cards[i+1].length() - 1);
 			if(firstSuit != secondSuit) {
 				isSameSuit = false;
 			}
 		}
-		
+		logger.info(""+isSameSuit);
 		//Determine if cards are consecutive
 		int[] cardValues = new int[cards.length];
-//		System.out.println(Arrays.toString(cards));
-		for(int i = 0; i < cards.length; i++) {
-			String cardNumber = cards[i].substring(1, cards[i].length() - 2); //"10H" -> 10H
+        for(int i = 0; i < cards.length; i++) {
+			String cardNumber = cards[i].substring(0, cards[i].length() - 1); //"10H" -> 10H
 			if(cardNumber.equals("J"))
 			    cardValues[i] = 11;
 			else if(cardNumber.equals("Q"))
@@ -47,7 +46,8 @@ public class CardHand {
 		}
 		//Sort cardValue array from low to high
 		Arrays.sort(cardValues);
-		logger.info(Arrays.toString(cardValues));
+
+		//Go through array and check if values are consecutive
 		for(int i = 0; i < cardValues.length - 1 && isConsecutive; i++) {
 			if (cardValues[i] != cardValues[i + 1] - 1) {
 				isConsecutive = false;

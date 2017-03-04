@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 
 public class CardHand {
@@ -11,12 +12,13 @@ public class CardHand {
 	
 	private boolean isConsecutive;
 	private boolean isSameSuit;
-	private String[] cards;
+	private HashMap<Integer, Integer> cardCombo;
 	
 	public CardHand(String[] cards) {
-		this.cards = cards.clone();
+		this.cardCombo = new HashMap<Integer, Integer>();
 		isSameSuit = true;
 		isConsecutive = true;
+
 
 		//Determine if the cards are same suit or not
 		for(int i = 0; i < cards.length - 1 && isSameSuit; i++) {
@@ -27,7 +29,6 @@ public class CardHand {
 				isSameSuit = false;
 			}
 		}
-		logger.info(""+isSameSuit);
 		//Determine if cards are consecutive
 		int[] cardValues = new int[cards.length];
         for(int i = 0; i < cards.length; i++) {
@@ -43,7 +44,15 @@ public class CardHand {
 			else
 			    cardValues[i] = Integer.parseInt(cardNumber);
 
+			//Put card into HashMap for later methods to determine hand combo info
+            if(this.cardCombo.get(cardValues[i]) != null) {
+                this.cardCombo.put(cardValues[i], this.cardCombo.get(cardValues[i]) + 1);
+            }
+            else {
+                this.cardCombo.put(cardValues[i], 1);
+            }
 		}
+
 		//Sort cardValue array from low to high
 		Arrays.sort(cardValues);
 
@@ -53,11 +62,9 @@ public class CardHand {
 				isConsecutive = false;
 			}
 		}
-	}
 
-	public String toString() {
-	    return Arrays.toString(cards);
-    }
+
+	}
 
     public boolean getIsConsecutive() {
 	    return this.isConsecutive;

@@ -12,10 +12,12 @@ public class CardHand {
 	
 	private boolean isConsecutive;
 	private boolean isSameSuit;
-	private HashMap<Integer, Integer> cardCombo;
+	private HashMap<Integer, Integer> cardOccurence;
+	private int[] cardValues;
+	private HandRankingValue handRankingValue;
 	
 	public CardHand(String[] cards) {
-		this.cardCombo = new HashMap<>();
+		this.cardOccurence = new HashMap<>();
 		isSameSuit = true;
 		isConsecutive = true;
 
@@ -30,7 +32,7 @@ public class CardHand {
 			}
 		}
 		//Determine if cards are consecutive
-		int[] cardValues = new int[cards.length];
+		this.cardValues = new int[cards.length];
         for(int i = 0; i < cards.length; i++) {
 			String cardNumber = cards[i].substring(0, cards[i].length() - 1); //"10H" -> 10H
 			if(cardNumber.equals("J"))
@@ -45,11 +47,11 @@ public class CardHand {
 			    cardValues[i] = Integer.parseInt(cardNumber);
 
 			//Put card into HashMap for later methods to determine hand combo info
-            if(this.cardCombo.get(cardValues[i]) != null) {
-                this.cardCombo.put(cardValues[i], this.cardCombo.get(cardValues[i]) + 1);
+            if(this.cardOccurence.get(cardValues[i]) != null) {
+                this.cardOccurence.put(cardValues[i], this.cardOccurence.get(cardValues[i]) + 1);
             }
             else {
-                this.cardCombo.put(cardValues[i], 1);
+                this.cardOccurence.put(cardValues[i], 1);
             }
 		}
 
@@ -63,11 +65,12 @@ public class CardHand {
 			}
 		}
 
-
+		determineHand();
+        logger.info(""+this.handRankingValue);
 	}
 
     public void determineHand() {
-	    int keyCount = this.cardCombo.keySet().size();
+	    int keyCount = this.cardOccurence.keySet().size();
 	    switch (keyCount) {
             case 2: //4 of a kind or full house
                 handle2Key();
@@ -88,18 +91,36 @@ public class CardHand {
     }
 
     /*
-    If the number of keys in cardCombo hashmap is 2, then you either have a 4 of a kind, or a full house.
+    If the number of keys in cardOccurence hashmap is 2, then you either have a 4 of a kind, or a full house.
     Eg. 4 Aces and 1 King or 3 Aces and 2 Kings
+
+    2 Possible Values for Map
+        4 Of a Kind: 4, 1
+        Full House: 3, 2
      */
     public void handle2Key() {
-	    for(Integer key : this.cardCombo.keySet()) {
-	        int value = this.cardCombo.get(key);
-	        if(value == 1 || value == 4) {
-	            //4 of a kind
+        int value = cardOccurence.get(cardOccurence.keySet().toArray()[0]);
+        if(value == 1 || value == 4) {
+            // 4 Of a Kind
+            this.handRankingValue = HandRankingValue.FOUROFAKIND;
+        }
+        else {
+            // Full House
+            this.handRankingValue = HandRankingValue.FULLHOUSE;
+        }
+    }
+
+    public void handle3Key() {
+        for(int key : cardOccurence.keySet()) {
+            int value = cardOccurence.get(key);
+            // If 3 of a kind, value is eventually going to be 3 (Full House is some variation of 1-1-3)
+            if(value == 3) {
+                this.handRankingValue = HandRankingValue.THREEOFAKIND;
             }
-            else {
-	            //Full house
-            }
+        }
+        if(this.handRankingValue == null) {
+            // hrv was never set above, so must be a two pair
+            this.handRankingValue = HandRankingValue.TWOPAIR;
         }
     }
 
@@ -107,7 +128,33 @@ public class CardHand {
     If num keys == 4, only a hand with a pair and 3 singles will end up with 4 keys in hashmap
      */
     public void handle4Key() {
+        this.handRankingValue = HandRankingValue.PAIR;
+    }
 
+    /*
+    Royal Flush: Since cardValues[] is already sorted, take the first value check if it's 10. Then check the boolean
+        flags
+    Straight Flush: Same suit and consecutive, doesn't matter what the first card is
+    Straight: Consecutive but not same suit
+    Flush: Same suit but not consecutive
+    Highcard: When all else fails, it's a high card!
+     */
+    public void handle5Key() {
+        if(this.isConsecutive && this.isSameSuit && this.cardValues[0] == 10) {
+            this.handRankingValue = HandRankingValue.ROYALFLUSH;
+        }
+        else if(this.isConsecutive && this.isSameSuit) {
+            this.handRankingValue = HandRankingValue.STRAIGHTFLUSH;
+        }
+        else if(this.isConsecutive) {
+            this.handRankingValue = HandRankingValue.STRAIGHT;
+        }
+        else if(this.isSameSuit) {
+            this.handRankingValue = HandRankingValue.FLUSH;
+        }
+        else {
+            this.handRankingValue = HandRankingValue.HIGHCARD;
+        }
     }
     public boolean getIsConsecutive() {
 	    return this.isConsecutive;

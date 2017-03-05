@@ -6,7 +6,6 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.smartcardio.Card;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -14,9 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * Created by bryan on 2/21/2017.
- */
+
 public class Application {
 
     public static void main(String[] args) {
@@ -27,6 +24,7 @@ public class Application {
             ArrayList<CardHand> handList = new ArrayList<CardHand>();
             String line;
             while ((line = br.readLine()) != null) {
+                logger.info(line);
                 JSONArray jsonArray = (JSONArray)parser.parse(line);
                 ArrayList<String> handBuilder = new ArrayList<String>();
                 for(int i = 0; i < jsonArray.size(); i++) {

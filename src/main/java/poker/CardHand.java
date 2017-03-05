@@ -15,7 +15,7 @@ public class CardHand {
 	private HashMap<Integer, Integer> cardCombo;
 	
 	public CardHand(String[] cards) {
-		this.cardCombo = new HashMap<Integer, Integer>();
+		this.cardCombo = new HashMap<>();
 		isSameSuit = true;
 		isConsecutive = true;
 
@@ -66,6 +66,49 @@ public class CardHand {
 
 	}
 
+    public void determineHand() {
+	    int keyCount = this.cardCombo.keySet().size();
+	    switch (keyCount) {
+            case 2: //4 of a kind or full house
+                handle2Key();
+                break;
+            case 3:
+                handle3Key();
+                break;
+            case 4:
+                handle4Key();
+                break;
+            case 5:
+                handle5Key();
+                break;
+            default:
+                //Should always be one of the 4 cases above, b/c can't have 1 key in valid poker
+                break;
+        }
+    }
+
+    /*
+    If the number of keys in cardCombo hashmap is 2, then you either have a 4 of a kind, or a full house.
+    Eg. 4 Aces and 1 King or 3 Aces and 2 Kings
+     */
+    public void handle2Key() {
+	    for(Integer key : this.cardCombo.keySet()) {
+	        int value = this.cardCombo.get(key);
+	        if(value == 1 || value == 4) {
+	            //4 of a kind
+            }
+            else {
+	            //Full house
+            }
+        }
+    }
+
+    /*
+    If num keys == 4, only a hand with a pair and 3 singles will end up with 4 keys in hashmap
+     */
+    public void handle4Key() {
+
+    }
     public boolean getIsConsecutive() {
 	    return this.isConsecutive;
     }

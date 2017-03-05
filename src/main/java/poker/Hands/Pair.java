@@ -1,24 +1,24 @@
 package poker.Hands;
 
-import poker.Hand;
-import poker.HandRankings;
+import poker.BaseHandRanking;
+import poker.HandRankingValue;
 
 /**
  * Created by bryan on 3/4/2017.
  */
-public class Pair extends Hand {
+public class Pair extends BaseHandRanking {
 
-    public Pair(HandRankings handRanking) {
+    public Pair(HandRankingValue handRanking) {
         this.setHandRanking(handRanking);
     }
 
     @Override
-    protected boolean compare(Hand hand) {
+    protected boolean compare(BaseHandRanking baseHandRanking) {
         return false;
     }
 
     @Override
-    protected boolean compareSameRank(Hand hand) {
+    protected boolean compareSameRank(BaseHandRanking baseHandRanking) {
         return false;
     }
 }

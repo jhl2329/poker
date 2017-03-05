@@ -1,9 +1,9 @@
 package poker;
 
 /**
- * Created by bryan on 3/4/2017.
+ * Created by Jae Lim on 3/4/2017.
  */
-public enum HandRankings {
+public enum HandRankingValue {
     HIGHCARD(0),
     PAIR(1),
     TWOPAIR(2),
@@ -17,7 +17,7 @@ public enum HandRankings {
 
     private final int value;
 
-    HandRankings(int value) {
+    HandRankingValue(int value) {
         this.value = value;
     }
 

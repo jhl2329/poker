@@ -12,12 +12,12 @@ public class CardHand {
 	
 	private boolean isConsecutive;
 	private boolean isSameSuit;
-	private HashMap<Integer, Integer> cardOccurence;
+	private HashMap<Integer, Integer> cardOccurrence;
 	private int[] cardValues;
 	private HandRankingValue handRankingValue;
 	
 	public CardHand(String[] cards) {
-		this.cardOccurence = new HashMap<>();
+		this.cardOccurrence = new HashMap<>();
 		isSameSuit = true;
 		isConsecutive = true;
 
@@ -47,11 +47,11 @@ public class CardHand {
 			    cardValues[i] = Integer.parseInt(cardNumber);
 
 			//Put card into HashMap for later methods to determine hand combo info
-            if(this.cardOccurence.get(cardValues[i]) != null) {
-                this.cardOccurence.put(cardValues[i], this.cardOccurence.get(cardValues[i]) + 1);
+            if(this.cardOccurrence.get(cardValues[i]) != null) {
+                this.cardOccurrence.put(cardValues[i], this.cardOccurrence.get(cardValues[i]) + 1);
             }
             else {
-                this.cardOccurence.put(cardValues[i], 1);
+                this.cardOccurrence.put(cardValues[i], 1);
             }
 		}
 
@@ -70,7 +70,7 @@ public class CardHand {
 	}
 
     public void determineHand() {
-	    int keyCount = this.cardOccurence.keySet().size();
+	    int keyCount = this.cardOccurrence.keySet().size();
 	    switch (keyCount) {
             case 2: //4 of a kind or full house
                 handle2Key();
@@ -91,7 +91,7 @@ public class CardHand {
     }
 
     /*
-    If the number of keys in cardOccurence hashmap is 2, then you either have a 4 of a kind, or a full house.
+    If the number of keys in cardOccurrence hashmap is 2, then you either have a 4 of a kind, or a full house.
     Eg. 4 Aces and 1 King or 3 Aces and 2 Kings
 
     2 Possible Values for Map
@@ -99,7 +99,7 @@ public class CardHand {
         Full House: 3, 2
      */
     public void handle2Key() {
-        int value = cardOccurence.get(cardOccurence.keySet().toArray()[0]);
+        int value = cardOccurrence.get(cardOccurrence.keySet().toArray()[0]);
         if(value == 1 || value == 4) {
             // 4 Of a Kind
             this.handRankingValue = HandRankingValue.FOUROFAKIND;
@@ -111,8 +111,8 @@ public class CardHand {
     }
 
     public void handle3Key() {
-        for(int key : cardOccurence.keySet()) {
-            int value = cardOccurence.get(key);
+        for(int key : cardOccurrence.keySet()) {
+            int value = cardOccurrence.get(key);
             // If 3 of a kind, value is eventually going to be 3 (Full House is some variation of 1-1-3)
             if(value == 3) {
                 this.handRankingValue = HandRankingValue.THREEOFAKIND;
@@ -156,6 +156,40 @@ public class CardHand {
             this.handRankingValue = HandRankingValue.HIGHCARD;
         }
     }
+
+    /*
+    Given CardHand secondHand, check if secondHand is a higher rank than the hand it's being compared with.
+    e.g.: If secondHand == 4 of a kind and calling CardHand == 3 of a kind, then return value would be true since 4 of a
+    kind beats 3 of a kind
+     */
+    public boolean compare(CardHand secondHand) {
+        if(this.handRankingValue == secondHand.handRankingValue) {
+            return this.sameRankComparison(secondHand);
+        }
+        else {
+            //Check if second is higher rank than this
+            return secondHand.getHandRankingValue().getValue() > this.handRankingValue.getValue();
+        }
+    }
+
+    /*
+    If the rank of two cards are the same, usually involves something simple such as checking the highs
+     */
+    public boolean sameRankComparison(CardHand secondHand) {
+        //Trivial case, see if two CardHands are actually the same
+        if(Arrays.equals(this.cardValues, secondHand.cardValues)) {
+            logger.info("Same hand");
+            return false;
+        }
+        return false;
+    }
+
+    public HandRankingValue getHandRankingValue() {
+        return this.handRankingValue;
+    }
+
+
+
     public boolean getIsConsecutive() {
 	    return this.isConsecutive;
     }

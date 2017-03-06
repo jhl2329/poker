@@ -35,6 +35,8 @@ public class Application {
 //                logger.info(Arrays.toString(handBuilder.toArray(new String[0])));
                 handList.add(new CardHand(handBuilder.toArray(new String[0])));
             }
+            CardHand first = handList.get(0);
+            logger.info(first.compare(handList.get(1)) + "");
 
         }
         catch(FileNotFoundException e) {

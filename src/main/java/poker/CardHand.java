@@ -2,6 +2,7 @@ package poker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import poker.hands.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,9 +13,11 @@ public class CardHand {
 	
 	private boolean isConsecutive;
 	private boolean isSameSuit;
+
 	private HashMap<Integer, Integer> cardOccurrence;
 	private int[] cardValues;
 	private HandRankingValue handRankingValue;
+	private BaseHand hand;
 	
 	public CardHand(String[] cards) {
 		this.cardOccurrence = new HashMap<>();
@@ -69,7 +72,7 @@ public class CardHand {
         logger.info(""+this.handRankingValue);
 	}
 
-    public void determineHand() {
+    private void determineHand() {
 	    int keyCount = this.cardOccurrence.keySet().size();
 	    switch (keyCount) {
             case 2: //4 of a kind or full house
@@ -98,37 +101,42 @@ public class CardHand {
         4 Of a Kind: 4, 1
         Full House: 3, 2
      */
-    public void handle2Key() {
+    private void handle2Key() {
         int value = cardOccurrence.get(cardOccurrence.keySet().toArray()[0]);
         if(value == 1 || value == 4) {
             // 4 Of a Kind
             this.handRankingValue = HandRankingValue.FOUROFAKIND;
+            this.hand = new Quads();
         }
         else {
             // Full House
             this.handRankingValue = HandRankingValue.FULLHOUSE;
+            this.hand = new FullHouse();
         }
     }
 
-    public void handle3Key() {
+    private void handle3Key() {
         for(int key : cardOccurrence.keySet()) {
             int value = cardOccurrence.get(key);
             // If 3 of a kind, value is eventually going to be 3 (Full House is some variation of 1-1-3)
             if(value == 3) {
                 this.handRankingValue = HandRankingValue.THREEOFAKIND;
+                this.hand = new Trips();
             }
         }
         if(this.handRankingValue == null) {
             // hrv was never set above, so must be a two pair
             this.handRankingValue = HandRankingValue.TWOPAIR;
+            this.hand = new TwoPair();
         }
     }
 
     /*
     If num keys == 4, only a hand with a pair and 3 singles will end up with 4 keys in hashmap
      */
-    public void handle4Key() {
+    private void handle4Key() {
         this.handRankingValue = HandRankingValue.PAIR;
+        this.hand = new Pair();
     }
 
     /*
@@ -139,22 +147,34 @@ public class CardHand {
     Flush: Same suit but not consecutive
     Highcard: When all else fails, it's a high card!
      */
-    public void handle5Key() {
+    private void handle5Key() {
         if(this.isConsecutive && this.isSameSuit && this.cardValues[0] == 10) {
             this.handRankingValue = HandRankingValue.ROYALFLUSH;
+            this.hand = new RoyalFlush();
         }
         else if(this.isConsecutive && this.isSameSuit) {
             this.handRankingValue = HandRankingValue.STRAIGHTFLUSH;
+            this.hand = new StraightFlush();
         }
         else if(this.isConsecutive) {
             this.handRankingValue = HandRankingValue.STRAIGHT;
+            this.hand = new Straight();
         }
         else if(this.isSameSuit) {
             this.handRankingValue = HandRankingValue.FLUSH;
+            this.hand = new Flush();
         }
         else {
             this.handRankingValue = HandRankingValue.HIGHCARD;
+            this.hand = new HighCard();
         }
+    }
+
+    public CardHand compare(CardHand secondHand) {
+        if(Arrays.equals(this.cardValues, secondHand.cardValues))
+            return null;
+        else
+            return this.handRankingValue.getValue() > secondHand.handRankingValue.getValue() ? this : secondHand;
     }
 
     /*
@@ -162,15 +182,6 @@ public class CardHand {
     e.g.: If secondHand == 4 of a kind and calling CardHand == 3 of a kind, then return value would be true since 4 of a
     kind beats 3 of a kind
      */
-    public boolean compare(CardHand secondHand) {
-        if(this.handRankingValue == secondHand.handRankingValue) {
-            return this.sameRankComparison(secondHand);
-        }
-        else {
-            //Check if second is higher rank than this
-            return secondHand.getHandRankingValue().getValue() > this.handRankingValue.getValue();
-        }
-    }
 
     /*
     If the rank of two cards are the same, usually involves something simple such as checking the highs
@@ -197,6 +208,9 @@ public class CardHand {
     public boolean getIsSameSuit() {
 	    return this.isSameSuit;
     }
-	
-	
+
+
+    public boolean sameRank(CardHand toCompare) {
+        return this.handRankingValue == toCompare.handRankingValue;
+    }
 }

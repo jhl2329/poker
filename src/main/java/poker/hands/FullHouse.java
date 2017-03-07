@@ -5,14 +5,14 @@ import poker.CardHand;
 /**
  * Created by Jae Lim on 3/6/2017.
  */
-public class FullHouse extends BaseHand {
+public class FullHouse extends BaseHand<FullHouse> {
 
     public FullHouse(CardHand cardHand, int[] cardValues) {
         super(cardHand, cardValues);
     }
 
     @Override
-    CardHand compareSameRank(CardHand toCompare) {
+    public CardHand compare(FullHouse toCompare) {
         return null;
     }
 }

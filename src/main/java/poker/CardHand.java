@@ -14,7 +14,7 @@ public class CardHand {
 	private boolean isConsecutive;
 	private boolean isSameSuit;
 
-	private HashMap<Integer, Integer> cardOccurrence;
+    private HashMap<Integer, Integer> cardOccurrence;
 	private int[] cardValues;
 	private HandRankingValue handRankingValue;
 	private BaseHand hand;

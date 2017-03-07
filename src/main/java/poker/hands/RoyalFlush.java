@@ -5,14 +5,14 @@ import poker.CardHand;
 /**
  * Created by Jae Lim on 3/6/2017.
  */
-public class RoyalFlush extends BaseHand {
+public class RoyalFlush extends BaseHand<RoyalFlush> {
 
     public RoyalFlush(CardHand cardHand, int[] cardValues) {
         super(cardHand, cardValues);
     }
 
     @Override
-    CardHand compareSameRank(CardHand toCompare) {
+    public CardHand compare(RoyalFlush toCompare) {
         return null;
     }
 }

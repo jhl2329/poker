@@ -11,12 +11,10 @@ public abstract class BaseHand<T extends BaseHand<T>> {
 
     CardHand cardHand;
     int[] cardValues;
-    HashMap<Integer, Integer> cardOccurrence;
 
     public BaseHand(CardHand cardHand, int[] cardValues) {
         this.cardHand = cardHand;
         this.cardValues = cardValues;
-        this.cardOccurrence = new HashMap<>();
     }
 
     public abstract CardHand compare(T toCompare);

@@ -11,6 +11,7 @@ public class RoyalFlush extends BaseHand<RoyalFlush> {
         super(cardHand, cardValues);
     }
 
+    //Royal Flushes are equal in rank to other Royal Flushes
     @Override
     public CardHand compare(RoyalFlush toCompare) {
         return null;

@@ -2,13 +2,18 @@ package poker.hands;
 
 import poker.CardHand;
 
+import java.util.HashMap;
+
 /**
  * Created by Jae Lim on 3/6/2017.
  */
 public class Trips extends BaseHand<Trips> {
 
-    public Trips(CardHand cardHand, int[] cardValues) {
+    private HashMap<Integer, Integer> cardOccurrence;
+
+    public Trips(CardHand cardHand, int[] cardValues, HashMap<Integer, Integer> cardOccurrence) {
         super(cardHand, cardValues);
+        this.cardOccurrence = cardOccurrence;
     }
 
     @Override

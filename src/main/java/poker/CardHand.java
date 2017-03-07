@@ -106,12 +106,12 @@ public class CardHand {
         if(value == 1 || value == 4) {
             // 4 Of a Kind
             this.handRankingValue = HandRankingValue.FOUROFAKIND;
-            this.hand = new Quads(this, this.cardValues);
+            this.hand = new Quads(this, this.cardValues, cardOccurrence);
         }
         else {
             // Full House
             this.handRankingValue = HandRankingValue.FULLHOUSE;
-            this.hand = new FullHouse(this, this.cardValues);
+            this.hand = new FullHouse(this, this.cardValues, this.cardOccurrence);
         }
     }
 
@@ -121,7 +121,7 @@ public class CardHand {
             // If 3 of a kind, value is eventually going to be 3 (Full House is some variation of 1-1-3)
             if(value == 3) {
                 this.handRankingValue = HandRankingValue.THREEOFAKIND;
-                this.hand = new Trips(this, this.cardValues);
+                this.hand = new Trips(this, this.cardValues, this.cardOccurrence);
             }
         }
         if(this.handRankingValue == null) {
@@ -171,47 +171,7 @@ public class CardHand {
     }
 
     public CardHand compare(CardHand secondHand) {
-        if(Arrays.equals(this.cardValues, secondHand.cardValues))
-            return null;
-        else
-            return this.hand.compare(secondHand.hand);
-//            return this.handRankingValue.getValue() > secondHand.handRankingValue.getValue() ? this : secondHand;
+        return this.hand.compare(secondHand.hand);
     }
-
-    /*
-    Given CardHand secondHand, check if secondHand is a higher rank than the hand it's being compared with.
-    e.g.: If secondHand == 4 of a kind and calling CardHand == 3 of a kind, then return value would be true since 4 of a
-    kind beats 3 of a kind
-     */
-
-    /*
-    If the rank of two cards are the same, usually involves something simple such as checking the highs
-     */
-    public boolean sameRankComparison(CardHand secondHand) {
-        //Trivial case, see if two CardHands are actually the same
-        if(Arrays.equals(this.cardValues, secondHand.cardValues)) {
-            logger.info("Same hand");
-            return false;
-        }
-        return false;
-    }
-
-    public HandRankingValue getHandRankingValue() {
-        return this.handRankingValue;
-    }
-
-
-
-    public boolean getIsConsecutive() {
-	    return this.isConsecutive;
-    }
-
-    public boolean getIsSameSuit() {
-	    return this.isSameSuit;
-    }
-
-
-    public boolean sameRank(CardHand toCompare) {
-        return this.handRankingValue == toCompare.handRankingValue;
-    }
+    
 }

@@ -106,12 +106,12 @@ public class CardHand {
         if(value == 1 || value == 4) {
             // 4 Of a Kind
             this.handRankingValue = HandRankingValue.FOUROFAKIND;
-            this.hand = new Quads();
+            this.hand = new Quads(this, this.cardValues);
         }
         else {
             // Full House
             this.handRankingValue = HandRankingValue.FULLHOUSE;
-            this.hand = new FullHouse();
+            this.hand = new FullHouse(this, this.cardValues);
         }
     }
 
@@ -121,13 +121,13 @@ public class CardHand {
             // If 3 of a kind, value is eventually going to be 3 (Full House is some variation of 1-1-3)
             if(value == 3) {
                 this.handRankingValue = HandRankingValue.THREEOFAKIND;
-                this.hand = new Trips();
+                this.hand = new Trips(this, this.cardValues);
             }
         }
         if(this.handRankingValue == null) {
             // hrv was never set above, so must be a two pair
             this.handRankingValue = HandRankingValue.TWOPAIR;
-            this.hand = new TwoPair();
+            this.hand = new TwoPair(this, this.cardValues, this.cardOccurrence);
         }
     }
 
@@ -136,7 +136,7 @@ public class CardHand {
      */
     private void handle4Key() {
         this.handRankingValue = HandRankingValue.PAIR;
-        this.hand = new Pair();
+        this.hand = new Pair(this, this.cardValues);
     }
 
     /*
@@ -150,23 +150,23 @@ public class CardHand {
     private void handle5Key() {
         if(this.isConsecutive && this.isSameSuit && this.cardValues[0] == 10) {
             this.handRankingValue = HandRankingValue.ROYALFLUSH;
-            this.hand = new RoyalFlush();
+            this.hand = new RoyalFlush(this, this.cardValues);
         }
         else if(this.isConsecutive && this.isSameSuit) {
             this.handRankingValue = HandRankingValue.STRAIGHTFLUSH;
-            this.hand = new StraightFlush();
+            this.hand = new StraightFlush(this, this.cardValues);
         }
         else if(this.isConsecutive) {
             this.handRankingValue = HandRankingValue.STRAIGHT;
-            this.hand = new Straight();
+            this.hand = new Straight(this, this.cardValues);
         }
         else if(this.isSameSuit) {
             this.handRankingValue = HandRankingValue.FLUSH;
-            this.hand = new Flush();
+            this.hand = new Flush(this, this.cardValues);
         }
         else {
             this.handRankingValue = HandRankingValue.HIGHCARD;
-            this.hand = new HighCard();
+            this.hand = new HighCard(this, this.cardValues);
         }
     }
 
@@ -174,7 +174,8 @@ public class CardHand {
         if(Arrays.equals(this.cardValues, secondHand.cardValues))
             return null;
         else
-            return this.handRankingValue.getValue() > secondHand.handRankingValue.getValue() ? this : secondHand;
+            return this.hand.compare(secondHand.hand);
+//            return this.handRankingValue.getValue() > secondHand.handRankingValue.getValue() ? this : secondHand;
     }
 
     /*

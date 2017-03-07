@@ -2,23 +2,22 @@ package poker.hands;
 
 import poker.CardHand;
 
+import java.util.HashMap;
+
 /**
  * Created by Jae Lim on 3/6/2017.
  */
-public abstract class BaseHand {
+public abstract class BaseHand<T extends BaseHand<T>> {
 
-    private CardHand cardHand;
+    CardHand cardHand;
+    int[] cardValues;
+    HashMap<Integer, Integer> cardOccurrence;
 
-    public CardHand compare(CardHand toCompare) {
-        if(this.cardHand.sameRank(toCompare)) {
-            return compareSameRank(toCompare);
-        }
-        return compareDifferentRank(toCompare);
+    public BaseHand(CardHand cardHand, int[] cardValues) {
+        this.cardHand = cardHand;
+        this.cardValues = cardValues;
+        this.cardOccurrence = new HashMap<>();
     }
 
-    private CardHand compareDifferentRank(CardHand toCompare) {
-        return this.cardHand.compare(toCompare);
-    }
-
-    abstract CardHand compareSameRank(CardHand toCompare);
+    public abstract CardHand compare(T toCompare);
 }

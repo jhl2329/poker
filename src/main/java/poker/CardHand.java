@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import poker.hands.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 
@@ -18,9 +20,11 @@ public class CardHand {
 	private int[] cardValues;
 	private HandRankingValue handRankingValue;
 	private BaseHand hand;
+	private ArrayList<Card> handList;
 	
 	public CardHand(String[] cards) {
 		this.cardOccurrence = new HashMap<>();
+		this.handList = new ArrayList<>();
 		isSameSuit = true;
 		isConsecutive = true;
 
@@ -30,6 +34,7 @@ public class CardHand {
 			//Card Layout: "10H"
             char firstSuit = cards[i].charAt(cards[i].length() - 1);
             char secondSuit = cards[i+1].charAt(cards[i+1].length() - 1);
+
 			if(firstSuit != secondSuit) {
 				isSameSuit = false;
 			}
@@ -37,17 +42,29 @@ public class CardHand {
 		//Determine if cards are consecutive
 		this.cardValues = new int[cards.length];
         for(int i = 0; i < cards.length; i++) {
+            int cardVal = 0;
 			String cardNumber = cards[i].substring(0, cards[i].length() - 1); //"10H" -> 10H
-			if(cardNumber.equals("J"))
-			    cardValues[i] = 11;
-			else if(cardNumber.equals("Q"))
-			    cardValues[i] = 12;
-			else if(cardNumber.equals("K"))
-			    cardValues[i] = 13;
-			else if(cardNumber.equals("A"))
-			    cardValues[i] = 14;
-			else
-			    cardValues[i] = Integer.parseInt(cardNumber);
+			if(cardNumber.equals("J")) {
+                cardValues[i] = 11;
+                cardVal = 11;
+            }
+			else if(cardNumber.equals("Q")) {
+                cardValues[i] = 12;
+                cardVal = 12;
+            }
+			else if(cardNumber.equals("K")) {
+                cardValues[i] = 13;
+                cardVal = 13;
+            }
+			else if(cardNumber.equals("A")) {
+                cardValues[i] = 14;
+                cardVal = 14;
+            }
+			else {
+                cardValues[i] = Integer.parseInt(cardNumber);
+                cardVal = Integer.parseInt(cardNumber);
+            }
+            this.handList.add(new Card(cardVal, cards[i].charAt(cards[i].length() - 1)));
 
 			//Put card into HashMap for later methods to determine hand combo info
             if(this.cardOccurrence.get(cardValues[i]) != null) {
@@ -60,17 +77,20 @@ public class CardHand {
 
 		//Sort cardValue array from low to high
 		Arrays.sort(cardValues);
-
+        Collections.sort(handList);
 		//Go through array and check if values are consecutive
 		for(int i = 0; i < cardValues.length - 1 && isConsecutive; i++) {
 			if (cardValues[i] != cardValues[i + 1] - 1) {
 				isConsecutive = false;
 			}
 		}
-
 		determineHand();
-        logger.info(""+this.handRankingValue);
 	}
+
+	public void findBestHand() {
+	    Determinator determinator = new Determinator(this.handList, this.cardValues, this.cardOccurrence);
+	    logger.info(determinator.determine() + "");
+    }
 
     private void determineHand() {
 	    int keyCount = this.cardOccurrence.keySet().size();
@@ -173,5 +193,22 @@ public class CardHand {
     public CardHand compare(CardHand secondHand) {
         return this.hand.compare(secondHand.hand);
     }
-    
+
+    public void sortByValueAndRank(ArrayList<Card> list) {
+        logger.info("Before: " + list.toString());
+        for(int i = 0; i < list.size() - 1; i++) {
+            Card first = list.get(i);
+            Card second = list.get(i + 1);
+            logger.info("firstSuit: " + first.getSuit() + " secondSuit: " + second.getSuit());
+            if(first.getSuit() < second.getSuit())
+                Collections.swap(list, i, i+1);
+/*            else if(first.getSuit() == second.getSuit() && first.getValue() < second.getValue())
+                Collections.swap(list, i, i+1);*/
+        }
+        logger.info("After: " + list.toString());
+    }
+    @Override
+    public String toString() {
+        return this.handRankingValue + "";
+    }
 }

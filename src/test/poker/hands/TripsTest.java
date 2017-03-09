@@ -12,12 +12,14 @@ public class TripsTest {
     @Test
     public void compare1() throws Exception {
         String[] hand1 = {"JH", "JC", "JD", "3S", "2H"};
-        String[] hand2 = {"JH", "JC", "JD", "3S", "2H"};
+        String[] hand2 = {"JH", "JC", "JD", "3S", "2H", "KH", "QH"};
 
         CardHand c1 = new CardHand(hand1);
         CardHand c2 = new CardHand(hand2);
 
-        assert((c1.compare(c2)) == null);
+        c2.findBestHand();
+
+//        assert((c1.compare(c2)) == null);
     }
 
     @Test

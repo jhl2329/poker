@@ -17,6 +17,8 @@ public class TwoPairTest {
         CardHand c1 = new CardHand(hand1);
         CardHand c2 = new CardHand(hand2);
 
+        c1.findBestHand();
+        c2.findBestHand();
         assert((c1.compare(c2)).equals(c2));
     }
 

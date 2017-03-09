@@ -14,9 +14,11 @@ public class StraightTest {
         String[] hand1 = {"JH", "10C", "9D", "8S", "7H"};
         String[] hand2 = {"JH", "10S", "9D", "8S", "7H"};
 
+
         CardHand c1 = new CardHand(hand1);
         CardHand c2 = new CardHand(hand2);
 
+        c1.findBestHand();
         assert((c1.compare(c2)) == null);
     }
 
@@ -39,7 +41,7 @@ public class StraightTest {
         CardHand c1 = new CardHand(hand);
         CardHand c2 = new CardHand(hand2);
 
-        c1.findBestHand();
+//        c1.findBestHand();
         c2.findBestHand();
     }
 

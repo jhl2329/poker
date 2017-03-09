@@ -23,135 +23,158 @@ public class Determinator {
     }
 
     public HandRankingValue determine() {
-        if(validRoyalFlush() != null)
-            return HandRankingValue.ROYALFLUSH;
-        else if (validStraightFlush() != null)
-            return HandRankingValue.STRAIGHTFLUSH;
-        else if (cardOccurrence.containsValue(4))
-            return HandRankingValue.FOUROFAKIND;
-        else if(validFullHouse() != -1)
-            return HandRankingValue.FULLHOUSE;
-        else if(validFlush() != null)
-            return HandRankingValue.FLUSH;
-        else if(validStraight() != null)
-            return HandRankingValue.STRAIGHT;
+        if (cardOccurrence.containsValue(4))
+            return checkAboveQuads() != null ? checkAboveQuads() : HandRankingValue.FOUROFAKIND;
         else if (cardOccurrence.containsValue(3))
-            return HandRankingValue.THREEOFAKIND;
-        else if (validTwoPair())
-            return HandRankingValue.TWOPAIR;
-        else if (validPair())
-            return HandRankingValue.PAIR;
+            return checkAboveTrips() != null ? checkAboveTrips() : HandRankingValue.THREEOFAKIND;
+        else if (cardOccurrence.containsValue(2))
+            return checkAbovePair();
         else
-            return HandRankingValue.HIGHCARD;
-/*        if (cardOccurrence.containsValue(4)) {
-            if (validStraightFlush() != null)
-                return HandRankingValue.STRAIGHTFLUSH;
-            else if (validRoyalFlush() != null)
-                return HandRankingValue.ROYALFLUSH;
-            return HandRankingValue.FOUROFAKIND;
-            //At least 4 of a kind is possible so check if above two rankings are possible
-        } else if (cardOccurrence.containsValue(3)) {
-            if (validFullHouse() != -1)
-                return HandRankingValue.FULLHOUSE;
-            else if (validFlush() != null)
-                return HandRankingValue.FLUSH;
-            else if (validStraight() != null)
-                return HandRankingValue.STRAIGHT;
-            return HandRankingValue.THREEOFAKIND;
-        } else {
-            if (validTwoPair())
-                return HandRankingValue.TWOPAIR;
-            else if (validPair())
-                return HandRankingValue.PAIR;
-            else
-                return HandRankingValue.HIGHCARD;
-        }*/
+            return checkAboveHigh();
     }
 
-    private Card validStraightFlush() {
-        Card highestConsecutive = null;
+    private HandRankingValue checkAboveQuads() {
+        if(validRoyalFlush())
+            return HandRankingValue.ROYALFLUSH;
+        else if(validStraightFlush())
+            return HandRankingValue.STRAIGHTFLUSH;
+        return null;
+    }
+
+    private HandRankingValue checkAboveTrips() {
+        //Still need to check for Royal Flush and Straight Flush
+        if(checkAboveQuads() != null)
+            return checkAboveQuads();
+        if(validFullHouse())
+            return HandRankingValue.FULLHOUSE;
+        else if(validFlush())
+            return HandRankingValue.FLUSH;
+        else if(validStraight())
+            return HandRankingValue.STRAIGHT;
+        return null;
+    }
+
+    private HandRankingValue checkAbovePair() {
+        //Check for RF and SF
+        HandRankingValue aboveTrips = checkAboveTrips();
+
+        if(aboveTrips != null)
+            return aboveTrips;
+        else
+            return validTwoPair() ? HandRankingValue.TWOPAIR : HandRankingValue.PAIR;
+    }
+
+    private HandRankingValue checkAboveHigh() {
+        HandRankingValue aboveTrips = checkAboveTrips();
+        if(aboveTrips != null)
+            return aboveTrips;
+        return HandRankingValue.HIGHCARD;
+
+    }
+    private boolean validStraightFlush() {
+//        Card highestConsecutive = null;
         for (int i = 0; i < this.cards.size(); i++) {
             //Check 5 cards from i to i + 5
+            int j = i;
             boolean isConsecutive = true;
-            for (int j = i; j < i + 4 && isConsecutive && j < this.cards.size() - 1; j++) {
+            while(j < i + 4 && isConsecutive && j < this.cards.size() -1) {
                 Card c1 = this.cards.get(j);
                 Card c2 = this.cards.get(j + 1);
                 isConsecutive = c1.sameSuit(c2) && c1.isConsecutive(c2);
+                j++;
             }
-            if (isConsecutive)
-                highestConsecutive = this.cards.get(i);
+            if(j == i + 4)
+                return true;
+//                highestConsecutive = this.cards.get(i);
         }
-        return highestConsecutive;
+//        return highestConsecutive;
+        return false;
     }
 
-    private Card validRoyalFlush() {
-        Card startingCard = null;
+    private boolean validRoyalFlush() {
+//        Card startingCard = null;
         for (int i = 0; i < this.cards.size(); i++) {
-            boolean isConsecutive = true;
             Card c1 = this.cards.get(i);
             if (c1.getValue() == 10) {
-                for (int j = i; j < i + 4 && isConsecutive && j < this.cards.size() - 1; j++) {
+                int j = i;
+                boolean isConsecutive = true;
+                while(j < i + 4 && isConsecutive && j < this.cards.size() - 1) {
                     c1 = this.cards.get(j);
                     Card c2 = this.cards.get(j + 1);
                     isConsecutive = c1.sameSuit(c2) && c1.isConsecutive(c2);
+                    j++;
                 }
+                if (j == i + 4)
+                    return true;
             }
-            if (isConsecutive)
-                startingCard = c1;
+//                startingCard = c1;
         }
-        logger.info(startingCard.toString());
-        return startingCard;
+//        logger.info(startingCard.toString());
+//        return startingCard;
+        return false;
     }
 
-    private int validFullHouse() {
+    private boolean validFullHouse() {
         //List of cards where count in cardOccurrence == 2
         ArrayList<Integer> twosList = new ArrayList<>();
+        ArrayList<Integer> threesList = new ArrayList<>();
         for (Integer key : this.cardOccurrence.keySet()) {
             int value = this.cardOccurrence.get(key);
             if (value == 2)
                 twosList.add(key);
+            else if (value == 3)
+                threesList.add(key);
         }
-        if (twosList.isEmpty())
+        if (twosList.isEmpty() || threesList.isEmpty())
             //No cards with occurrence == 2, so FullHouse not possible
-            return -1;
+            return false;
+//            return -1;
         Collections.sort(twosList);
 
-        //Return highest value in twosList to return highest pair
-        return twosList.get(twosList.size() - 1);
+        //If above conditional didn't trigger, must be something in twosList
+        return true;
+//        return twosList.get(twosList.size() - 1);
     }
 
-    private Card validFlush() {
+    private boolean validFlush() {
         Set<Integer> cardSet = this.cardOccurrence.keySet();
         Card highestFlush = null;
         for (int i = 0; i < cardSet.size() - 1; i++) {
+            int j = i;
             boolean isFlush = true;
-            for (int j = i; j < i + 4 && isFlush && j < cardSet.size() - 1; j++) {
+            while(j < i + 4 && isFlush && j < cardSet.size() - 1) {
                 Card c1 = this.cards.get(j);
                 Card c2 = this.cards.get(j + 1);
                 isFlush = c1.sameSuit(c2);
+                j ++;
             }
-            if (isFlush)
-                highestFlush = this.cards.get(i);
+            if(j == i + 4)
+                return true;
+//                highestFlush = this.cards.get(i);
         }
-        return highestFlush;
+        return false;
+//        return highestFlush;
     }
 
     //Code for validStraight is pretty similar to validStraightFlush except no need to check suit
-    private Card validStraight() {
-        logger.info("validStraight() method");
+    private boolean validStraight() {
         Card highestConsecutive = null;
         for (int i = 0; i < this.cards.size(); i++) {
             //Check 5 cards from i to i + 5
+            int j = i;
             boolean isConsecutive = true;
-            for (int j = i; j < i + 4 && isConsecutive && j < this.cards.size() - 1; j++) {
+            while(j < i + 4 && isConsecutive && j < this.cards.size() - 1) {
                 Card c1 = this.cards.get(j);
                 Card c2 = this.cards.get(j + 1);
                 isConsecutive = c1.isConsecutive(c2);
+                j++;
             }
-            if (isConsecutive)
-                highestConsecutive = this.cards.get(i);
+            if(j == i + 4)
+                return true;
+//                highestConsecutive = this.cards.get(i);
         }
-        return highestConsecutive;
+        return false;
+//        return highestConsecutive;
     }
 
     private boolean validTwoPair() {

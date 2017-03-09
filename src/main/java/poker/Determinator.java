@@ -27,18 +27,27 @@ public class Determinator {
     }
 
     public HandRankingValue determine() {
-        if (cardOccurrence.containsValue(4))
-            return checkAboveQuads() != null ? checkAboveQuads() : HandRankingValue.FOUROFAKIND;
-        else if (cardOccurrence.containsValue(3))
-            return checkAboveTrips() != null ? checkAboveTrips() : HandRankingValue.THREEOFAKIND;
+        HandRankingValue hrv;
+        if (cardOccurrence.containsValue(4)) {
+            hrv = checkAboveQuads();
+            if (hrv == null) {
+                makeQuads();
+                return HandRankingValue.FOUROFAKIND;
+            }
+            return hrv;
+        }
+        else if (cardOccurrence.containsValue(3)) {
+            hrv = checkAboveTrips();
+            if (hrv == null) {
+                makeTrips();
+                return HandRankingValue.THREEOFAKIND;
+            }
+            return hrv;
+        }
         else if (cardOccurrence.containsValue(2))
             return checkAbovePair();
         else
             return checkAboveHigh();
-    }
-
-    public CardHand getBestCards() {
-        return this.cardHand;
     }
 
     private HandRankingValue checkAboveQuads() {
@@ -68,14 +77,19 @@ public class Determinator {
 
         if(aboveTrips != null)
             return aboveTrips;
-        else
-            return validTwoPair() ? HandRankingValue.TWOPAIR : HandRankingValue.PAIR;
+        else {
+            if(validTwoPair())
+                return HandRankingValue.TWOPAIR;
+            makePair();
+            return HandRankingValue.PAIR;
+        }
     }
 
     private HandRankingValue checkAboveHigh() {
         HandRankingValue aboveTrips = checkAboveTrips();
         if(aboveTrips != null)
             return aboveTrips;
+        makeHigh();
         return HandRankingValue.HIGHCARD;
 
     }
@@ -126,6 +140,29 @@ public class Determinator {
             }
         }
         return false;
+    }
+
+    private void makeQuads() {
+        int highestFour, highestKicker;
+        highestFour = highestKicker = -1;
+        for (Integer key : this.cardOccurrence.keySet()) {
+            int value = this.cardOccurrence.get(key);
+            if(value == 4 && value > highestFour)
+                highestFour = key;
+            else
+                highestKicker = key;
+        }
+
+        //Go through Cards ArrayList to get the actual cards pertaining
+        ArrayList<String> validHand = new ArrayList<>();
+        for(int i = 0; i < this.cards.size(); i++) {
+            Card c = this.cards.get(i);
+            if(c.sameValue(highestFour))
+                validHand.add(c.toString());
+            else if(c.sameValue(highestKicker))
+                validHand.add(c.toString());
+        }
+        this.cardHand = new CardHand(validHand.toArray(new String[0]));
     }
 
     private boolean validFullHouse() {
@@ -191,7 +228,6 @@ public class Determinator {
     //Code for validStraight is pretty similar to validStraightFlush except no need to check suit
     private boolean validStraight() {
         Collections.sort(this.cards, Card.COMPARE_BY_VALUE);
-        logger.info(this.cards.toString());
         ArrayList<String> validHand = new ArrayList<>();
         boolean isStraight = false;
         for (int i = 0; i < this.cards.size(); i++) {
@@ -214,31 +250,117 @@ public class Determinator {
         return isStraight;
     }
 
-    private boolean validTwoPair() {
-        ArrayList<Integer> twos = new ArrayList<>();
-        ArrayList<Integer> ones = new ArrayList<>(); //Ones can be empty if there are 6 cards and they're all pairs
+    private void makeTrips() {
+        //Let secondKicker be the lower value
+        int highestThree, firstKicker, secondKicker;
+        highestThree = firstKicker = secondKicker  = -1;
         for (Integer key : this.cardOccurrence.keySet()) {
             int value = this.cardOccurrence.get(key);
-            if (value == 2)
-                //Add pairs
-                twos.add(key);
-            else if (value == 1)
-                //Add kickers
-                ones.add(key);
+            if(value == 3 && value > highestThree)
+                highestThree = key;
+            else {
+                if(key > firstKicker) {
+                     secondKicker = firstKicker;
+                     firstKicker = key;
+                }
+                else if(key > secondKicker)
+                    secondKicker = key;
+            }
         }
-        //To be a valid two pair, must have at least two pairs
-        return twos.size() >= 2;
+
+        //Go through Cards ArrayList to get the actual cards pertaining
+        ArrayList<String> validHand = new ArrayList<>();
+        for(int i = 0; i < this.cards.size(); i++) {
+            Card c = this.cards.get(i);
+            if(c.sameValue(highestThree))
+                validHand.add(c.toString());
+            else if(c.sameValue(firstKicker) || c.sameValue(secondKicker))
+                validHand.add(c.toString());
+        }
+        this.cardHand = new CardHand(validHand.toArray(new String[0]));
     }
 
-    private boolean validPair() {
+    private boolean validTwoPair() {
+        int highTwo, lowTwo, kicker;
+        highTwo = lowTwo = kicker = -1;
+
+        for (Integer key : this.cardOccurrence.keySet()) {
+            int value = this.cardOccurrence.get(key);
+            if (value == 2) {
+                if (key > highTwo) {
+                    lowTwo = highTwo;
+                    if(lowTwo > kicker)
+                        kicker = lowTwo;
+                    highTwo = key;
+                }
+                else if (key > lowTwo) {
+                    if (lowTwo > kicker)
+                        kicker = lowTwo;
+                    lowTwo = key;
+                }
+                else {
+                    if(key > kicker)
+                        kicker = key;
+                }
+            }
+            else
+                if(key > kicker)
+                    kicker = key;
+        }
+        if(highTwo == -1 || lowTwo == -1 || kicker == -1)
+            return false;
+        ArrayList<String> validHands = new ArrayList<>();
+        for(int i = 0; i < this.cards.size(); i++) {
+            Card c = this.cards.get(i);
+            if(c.sameValue(highTwo) || c.sameValue(lowTwo) || c.sameValue(kicker))
+                validHands.add(c.toString());
+        }
+        this.cardHand = new CardHand(validHands.toArray(new String[0]));
+        return true;
+    }
+
+    private boolean makePair() {
         //No need to check for additional pairs because if two or more pairs exist, it'd be considered a TwoPair
+        int pairs = -1;
         for (Integer key : this.cardOccurrence.keySet()) {
             int value = this.cardOccurrence.get(key);
             if (value == 2)
-                return true;
+                pairs = key;
         }
-        //If no keys have occurrence of 2, then no pairs exist
-        return false;
+        //Means no keys w/ occurrence 2
+        if (pairs == -1)
+            return false;
+        ArrayList<String> validHands = new ArrayList<>();
+        Collections.sort(this.cards, Card.COMPARE_BY_VALUE);
+        int i = this.cards.size() - 1;
+
+        //First find the pair and add them to the validHands
+        while(i >= 0) {
+            Card c = this.cards.get(i);
+            if(c.sameValue(pairs))
+                validHands.add(c.toString());
+            i--;
+        }
+
+        //Then add kickers in order of magnitude
+        i = this.cards.size() - 1;
+        while(i >= 0 && validHands.size() < 5) {
+            Card c = this.cards.get(i);
+            if(!c.sameValue(pairs))
+                validHands.add(c.toString());
+            i--;
+        }
+        this.cardHand = new CardHand(validHands.toArray(new String[0]));
+        return true;
+    }
+
+    //Since no other combinations, just sort and get the last 5
+    public void makeHigh() {
+        Collections.sort(this.cards, Card.COMPARE_BY_VALUE);
+        ArrayList<String> validHand = new ArrayList<>();
+        for(int i = this.cards.size() - 5; i < this.cards.size(); i++)
+            validHand.add(this.cards.get(i).toString());
+        this.cardHand = new CardHand(validHand.toArray(new String[0]));
     }
 
     @Override

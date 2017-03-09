@@ -76,4 +76,52 @@ public class DeterminatorTest {
         CardHand c = new CardHand(hand1);
         assert(c.findBestHand() == HandRankingValue.FULLHOUSE);
     }
+
+    @Test
+    public void testFlush() {
+        String[] hand1 = {"QH", "10H", "8H", "6H", "4H"};
+
+        CardHand c = new CardHand(hand1);
+        assert(c.findBestHand() == HandRankingValue.FLUSH);
+    }
+
+    @Test
+    public void testFlush2() {
+        String[] hand1 = {"QH", "10H", "8H", "6H", "4H", "KD", "AC", "JC"};
+
+        CardHand c = new CardHand(hand1);
+        assert(c.findBestHand() == HandRankingValue.FLUSH);
+    }
+
+    @Test
+    public void testFlush3() {
+        String[] hand1 = {"QH", "10H", "8H", "6H", "4H", "KD", "AC", "JC", "KH", "AH"};
+
+        CardHand c = new CardHand(hand1);
+        assert(c.findBestHand() == HandRankingValue.FLUSH);
+    }
+
+    @Test
+    public void testStraight() {
+        String[] hand1 = {"10C", "JD", "QH", "KC", "AS"};
+
+        CardHand c = new CardHand(hand1);
+        assert(c.findBestHand() == HandRankingValue.STRAIGHT);
+    }
+
+    @Test
+    public void testStraight2() {
+        String[] hand1 = {"10C", "JD", "QH", "KC", "AS", "AD", "AC"};
+
+        CardHand c = new CardHand(hand1);
+        assert(c.findBestHand() == HandRankingValue.STRAIGHT);
+    }
+
+    @Test
+    public void testStraight3() {
+        String[] hand1 = {"8C", "4H", "5D", "6C", "7S","10D", "JD", "QH", "KC", "AS", "AD", "AC"};
+
+        CardHand c = new CardHand(hand1);
+        assert(c.findBestHand() == HandRankingValue.STRAIGHT);
+    }
 }

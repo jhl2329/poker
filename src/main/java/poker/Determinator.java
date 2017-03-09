@@ -164,56 +164,54 @@ public class Determinator {
         //If above conditional didn't trigger, must be valid FullHouse of some sort
         this.cardHand = new CardHand(validHand.toArray(new String[0]));
         return true;
-//        return twosList.get(twosList.size() - 1);
     }
 
     private boolean validFlush() {
-        Set<Integer> cardSet = this.cardOccurrence.keySet();
         boolean flush = false;
         ArrayList<String> validHand = new ArrayList<>();
-        for (int i = 0; i < cardSet.size() - 1; i++) {
+        for (int i = 0; i < this.cards.size(); i++) {
             int j = i;
             validHand.add(this.cards.get(i).toString());
-            while(j < i + 4 && j < cardSet.size() - 1) {
+            while(j < i + 4 && j < this.cards.size() - 1) {
                 Card c1 = this.cards.get(j);
                 Card c2 = this.cards.get(j + 1);
                 if(c1.sameSuit(c2))
                     validHand.add(c2.toString());
-                j ++;
+                j++;
             }
             if(j == i + 4 && validHand.size() == 5) {
-                logger.info("Considering hand: " + validHand.toString());
                 this.cardHand = new CardHand(validHand.toArray(new String[0]));
                 flush = true;
-                logger.info("Valid flush:");
             }
             validHand.clear();
-//                highestFlush = this.cards.get(i);
         }
-
         return flush;
-//        return highestFlush;
     }
 
     //Code for validStraight is pretty similar to validStraightFlush except no need to check suit
     private boolean validStraight() {
-        Card highestConsecutive = null;
+        Collections.sort(this.cards, Card.COMPARE_BY_VALUE);
+        logger.info(this.cards.toString());
+        ArrayList<String> validHand = new ArrayList<>();
+        boolean isStraight = false;
         for (int i = 0; i < this.cards.size(); i++) {
             //Check 5 cards from i to i + 5
             int j = i;
-            boolean isConsecutive = true;
-            while(j < i + 4 && isConsecutive && j < this.cards.size() - 1) {
+            validHand.add(this.cards.get(i).toString());
+            while(j < i + 4 && j < this.cards.size() - 1) {
                 Card c1 = this.cards.get(j);
                 Card c2 = this.cards.get(j + 1);
-                isConsecutive = c1.isConsecutive(c2);
+                if(c1.isConsecutive(c2))
+                    validHand.add(c2.toString());
                 j++;
             }
-            if(j == i + 4)
-                return true;
-//                highestConsecutive = this.cards.get(i);
+            if(j == i + 4 && validHand.size() == 5) {
+                this.cardHand = new CardHand(validHand.toArray(new String[0]));
+                isStraight = true;
+            }
+            validHand.clear();
         }
-        return false;
-//        return highestConsecutive;
+        return isStraight;
     }
 
     private boolean validTwoPair() {

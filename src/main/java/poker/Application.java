@@ -54,7 +54,7 @@ public class Application {
                 String s = jsonArray.get(i).toString();
                 handBuilder.add(s);
             }
-            if(handBuilder.size() == 5 && validCardHand(handBuilder))
+            if(handBuilder.size() >= 5 && validCardHand(handBuilder))
                 handList.add(new CardHand(handBuilder.toArray(new String[0])));
             else
                 System.out.println(handBuilder.toString() + " is not a valid hand");

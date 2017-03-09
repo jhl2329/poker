@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 
-public class CardHand {
+public class CardHand implements Comparable<CardHand>{
 
 	private boolean isConsecutive;
 	private boolean isSameSuit;
@@ -86,8 +86,6 @@ public class CardHand {
 
 	public String findBestHand() {
 	    Determinator determinator = new Determinator(this.handList, this.cardOccurrence);
-//	    HandRankingValue bestRank = determinator.determine();
-	    System.out.println(determinator.toString());
 	    return determinator.toString();
     }
 
@@ -190,6 +188,8 @@ public class CardHand {
     }
 
     public CardHand compare(CardHand secondHand) {
+        if (this.handRankingValue != secondHand.handRankingValue)
+            return this.handRankingValue.getValue() > secondHand.handRankingValue.getValue() ? this : secondHand;
         return this.hand.compare(secondHand.hand);
     }
 
@@ -204,5 +204,15 @@ public class CardHand {
             sb.append(" ");
         }
         return sb.toString();
+    }
+
+    @Override
+    public int compareTo(CardHand o) {
+        if(this.handRankingValue.getValue() != o.handRankingValue.getValue())
+            return this.handRankingValue.getValue() > o.handRankingValue.getValue() ? -1 : 1;
+        if(this.hand.compare(o.hand) == null)
+            return 0;
+        else
+            return this.hand.compare(o.hand) == this ? -1 : 1;
     }
 }

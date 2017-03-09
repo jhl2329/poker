@@ -50,7 +50,6 @@ public class Determinator {
     }
 
     private HandRankingValue checkAboveTrips() {
-        //Still need to check for Royal Flush and Straight Flush
         if(checkAboveQuads() != null)
             return checkAboveQuads();
         if(validFullHouse())
@@ -145,7 +144,6 @@ public class Determinator {
             else
                 highestKicker = key;
         }
-//        System.out.printf("four: %d kicker: %d", highestFour, highestKicker);
 
         //Go through Cards ArrayList to get the actual cards pertaining
         ArrayList<String> validHand = new ArrayList<>();

@@ -87,10 +87,13 @@ public class CardHand {
 		determineHand();
 	}
 
-	public void findBestHand() {
+	public HandRankingValue findBestHand() {
 	    Determinator determinator = new Determinator(this.handList, this.cardValues, this.cardOccurrence);
-	    logger.info(determinator.determine() + "");
+	    HandRankingValue bestRank = determinator.determine();
+	    logger.info(determinator.getBestCards().toString());
+	    return bestRank;
     }
+
 
     private void determineHand() {
 	    int keyCount = this.cardOccurrence.keySet().size();

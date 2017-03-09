@@ -2,6 +2,8 @@ package poker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import poker.hands.BaseHand;
+import poker.hands.StraightFlush;
 
 import java.util.*;
 
@@ -15,6 +17,8 @@ public class Determinator {
     private ArrayList<Card> cards;
     private int[] cardValues;
     private HashMap<Integer, Integer> cardOccurrence;
+    private BaseHand baseHand;
+    private CardHand cardHand;
 
     public Determinator(ArrayList<Card> cards, int[] cardValues, HashMap<Integer, Integer> cardOccurrence) {
         this.cards = cards;
@@ -31,6 +35,10 @@ public class Determinator {
             return checkAbovePair();
         else
             return checkAboveHigh();
+    }
+
+    public CardHand getBestCards() {
+        return this.cardHand;
     }
 
     private HandRankingValue checkAboveQuads() {
@@ -71,46 +79,55 @@ public class Determinator {
         return HandRankingValue.HIGHCARD;
 
     }
+
     private boolean validStraightFlush() {
-//        Card highestConsecutive = null;
+        ArrayList<String> validHand = new ArrayList<>();
+        boolean isConsecutive = true;
         for (int i = 0; i < this.cards.size(); i++) {
             //Check 5 cards from i to i + 5
             int j = i;
-            boolean isConsecutive = true;
+            validHand.add(this.cards.get(i).toString());
             while(j < i + 4 && isConsecutive && j < this.cards.size() -1) {
                 Card c1 = this.cards.get(j);
                 Card c2 = this.cards.get(j + 1);
                 isConsecutive = c1.sameSuit(c2) && c1.isConsecutive(c2);
+                if(isConsecutive)
+                    validHand.add(c2.toString());
                 j++;
             }
-            if(j == i + 4)
-                return true;
-//                highestConsecutive = this.cards.get(i);
+            if(j == i + 4) {
+                this.cardHand = new CardHand(validHand.toArray(new String[0]));
+            }
+            validHand.clear();
         }
-//        return highestConsecutive;
+        if (isConsecutive) {
+            return true;
+        }
         return false;
     }
 
     private boolean validRoyalFlush() {
-//        Card startingCard = null;
+        ArrayList<String> validHand = new ArrayList<>();
+        boolean isConsecutive = true;
         for (int i = 0; i < this.cards.size(); i++) {
             Card c1 = this.cards.get(i);
             if (c1.getValue() == 10) {
                 int j = i;
-                boolean isConsecutive = true;
+                validHand.add(this.cards.get(i).toString());
                 while(j < i + 4 && isConsecutive && j < this.cards.size() - 1) {
                     c1 = this.cards.get(j);
                     Card c2 = this.cards.get(j + 1);
                     isConsecutive = c1.sameSuit(c2) && c1.isConsecutive(c2);
+                    validHand.add(c2.toString());
                     j++;
                 }
-                if (j == i + 4)
+                if (j == i + 4) {
+                    this.cardHand = new CardHand((validHand.toArray(new String[0])));
                     return true;
+                }
+                validHand.clear();
             }
-//                startingCard = c1;
         }
-//        logger.info(startingCard.toString());
-//        return startingCard;
         return false;
     }
 
@@ -138,21 +155,28 @@ public class Determinator {
 
     private boolean validFlush() {
         Set<Integer> cardSet = this.cardOccurrence.keySet();
+        boolean isFlush = true;
+        ArrayList<String> validHand = new ArrayList<>();
         Card highestFlush = null;
         for (int i = 0; i < cardSet.size() - 1; i++) {
             int j = i;
-            boolean isFlush = true;
+            validHand.add(this.cards.get(i).toString());
             while(j < i + 4 && isFlush && j < cardSet.size() - 1) {
                 Card c1 = this.cards.get(j);
                 Card c2 = this.cards.get(j + 1);
                 isFlush = c1.sameSuit(c2);
+                if(isFlush)
+                    validHand.add(c2.toString());
                 j ++;
             }
-            if(j == i + 4)
-                return true;
+            if(j == i + 4) {
+                this.cardHand = new CardHand(validHand.toArray(new String[0]));
+                logger.info("Valid flush:");
+            }
 //                highestFlush = this.cards.get(i);
         }
-        return false;
+
+        return isFlush ? true : false;
 //        return highestFlush;
     }
 
@@ -202,5 +226,10 @@ public class Determinator {
         }
         //If no keys have occurrence of 2, then no pairs exist
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return this.cardHand.toString();
     }
 }

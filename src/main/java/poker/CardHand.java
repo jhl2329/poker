@@ -90,7 +90,7 @@ public class CardHand {
 	public HandRankingValue findBestHand() {
 	    Determinator determinator = new Determinator(this.handList, this.cardValues, this.cardOccurrence);
 	    HandRankingValue bestRank = determinator.determine();
-	    logger.info(determinator.getBestCards().toString());
+	    logger.info(determinator.toString());
 	    return bestRank;
     }
 
@@ -212,6 +212,6 @@ public class CardHand {
     }
     @Override
     public String toString() {
-        return this.handRankingValue + "";
+        return this.handList.toString();
     }
 }

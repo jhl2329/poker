@@ -40,4 +40,8 @@ public class Card implements Comparable<Card>{
             return this.value > c.value ? 1 : -1;
         return this.suit > c.suit ? 1 : -1;
     }
+
+    public boolean sameValue(int i) {
+        return this.value == i;
+    }
 }

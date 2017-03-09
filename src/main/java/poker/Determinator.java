@@ -82,28 +82,25 @@ public class Determinator {
 
     private boolean validStraightFlush() {
         ArrayList<String> validHand = new ArrayList<>();
-        boolean isConsecutive = true;
+        boolean isSF = false;
         for (int i = 0; i < this.cards.size(); i++) {
             //Check 5 cards from i to i + 5
             int j = i;
             validHand.add(this.cards.get(i).toString());
-            while(j < i + 4 && isConsecutive && j < this.cards.size() -1) {
+            while(j < i + 4 && j < this.cards.size() -1) {
                 Card c1 = this.cards.get(j);
                 Card c2 = this.cards.get(j + 1);
-                isConsecutive = c1.sameSuit(c2) && c1.isConsecutive(c2);
-                if(isConsecutive)
+                if(c1.sameSuit(c2) && c1.isConsecutive(c2))
                     validHand.add(c2.toString());
                 j++;
             }
-            if(j == i + 4) {
+            if(j == i + 4 && validHand.size() == 5) { //Means while loop was able to get 5 cards and we have a valid hand
                 this.cardHand = new CardHand(validHand.toArray(new String[0]));
+                isSF = true;
             }
             validHand.clear();
         }
-        if (isConsecutive) {
-            return true;
-        }
-        return false;
+        return isSF;
     }
 
     private boolean validRoyalFlush() {
@@ -133,50 +130,68 @@ public class Determinator {
 
     private boolean validFullHouse() {
         //List of cards where count in cardOccurrence == 2
-        ArrayList<Integer> twosList = new ArrayList<>();
-        ArrayList<Integer> threesList = new ArrayList<>();
+        int highestTwo, highestThree;
+        highestTwo = highestThree = -1;
         for (Integer key : this.cardOccurrence.keySet()) {
             int value = this.cardOccurrence.get(key);
-            if (value == 2)
-                twosList.add(key);
-            else if (value == 3)
-                threesList.add(key);
+            if (value == 2 && key > highestTwo)
+                highestTwo = key;
+            else if (value == 3 && key > highestThree) {
+                //If there exists a higher 3 count, the old 3 count might be bigger than the twoCount
+                if(highestThree > highestTwo)
+                    highestTwo = highestThree;
+                highestThree = key;
+            }
         }
-        if (twosList.isEmpty() || threesList.isEmpty())
-            //No cards with occurrence == 2, so FullHouse not possible
+        if (highestTwo == -1 || highestThree == -1)
+            //FullHouse only possible with 2s and 3s
             return false;
-//            return -1;
-        Collections.sort(twosList);
 
-        //If above conditional didn't trigger, must be something in twosList
+        ArrayList<String> validHand = new ArrayList<>();
+        int twosCount, threesCount;
+        twosCount = threesCount = 0;
+        for(int i = 0; i < this.cards.size(); i ++) {
+            Card c = this.cards.get(i);
+            if(c.sameValue(highestTwo) && twosCount < 2){
+                twosCount++;
+                validHand.add(c.toString());
+            }
+            else if(c.sameValue(highestThree) && threesCount < 3) {
+                threesCount++;
+                validHand.add(c.toString());
+            }
+        }
+        //If above conditional didn't trigger, must be valid FullHouse of some sort
+        this.cardHand = new CardHand(validHand.toArray(new String[0]));
         return true;
 //        return twosList.get(twosList.size() - 1);
     }
 
     private boolean validFlush() {
         Set<Integer> cardSet = this.cardOccurrence.keySet();
-        boolean isFlush = true;
+        boolean flush = false;
         ArrayList<String> validHand = new ArrayList<>();
-        Card highestFlush = null;
         for (int i = 0; i < cardSet.size() - 1; i++) {
             int j = i;
             validHand.add(this.cards.get(i).toString());
-            while(j < i + 4 && isFlush && j < cardSet.size() - 1) {
+            while(j < i + 4 && j < cardSet.size() - 1) {
                 Card c1 = this.cards.get(j);
                 Card c2 = this.cards.get(j + 1);
-                isFlush = c1.sameSuit(c2);
-                if(isFlush)
+                if(c1.sameSuit(c2))
                     validHand.add(c2.toString());
                 j ++;
             }
-            if(j == i + 4) {
+            if(j == i + 4 && validHand.size() == 5) {
+                logger.info("Considering hand: " + validHand.toString());
                 this.cardHand = new CardHand(validHand.toArray(new String[0]));
+                flush = true;
                 logger.info("Valid flush:");
             }
+            validHand.clear();
 //                highestFlush = this.cards.get(i);
         }
 
-        return isFlush ? true : false;
+        return flush;
 //        return highestFlush;
     }
 

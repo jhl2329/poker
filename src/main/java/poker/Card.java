@@ -31,6 +31,29 @@ public class Card implements Comparable<Card>{
         return this.value + 1 == c.value;
     }
 
+    public String prettyCard() {
+        StringBuilder sb = new StringBuilder();
+        switch(this.value) {
+            case 11:
+                sb.append("J");
+                break;
+            case 12:
+                sb.append("Q");
+                break;
+            case 13:
+                sb.append("K");
+                break;
+            case 14:
+                sb.append("A");
+                break;
+            default:
+                sb.append(this.value);
+                break;
+        }
+        sb.append(this.suit);
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         return "" + this.value + this.suit;

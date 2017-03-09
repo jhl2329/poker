@@ -1,29 +1,20 @@
 package poker;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import poker.hands.BaseHand;
-import poker.hands.StraightFlush;
-
 import java.util.*;
 
 /**
  * Created by Jae Lim on 3/7/2017.
  */
 public class Determinator {
-    Logger logger = LoggerFactory.getLogger(CardHand.class);
-
 
     private ArrayList<Card> cards;
-    private int[] cardValues;
     private HashMap<Integer, Integer> cardOccurrence;
-    private BaseHand baseHand;
     private CardHand cardHand;
 
-    public Determinator(ArrayList<Card> cards, int[] cardValues, HashMap<Integer, Integer> cardOccurrence) {
+    public Determinator(ArrayList<Card> cards, HashMap<Integer, Integer> cardOccurrence) {
         this.cards = cards;
-        this.cardValues = cardValues;
         this.cardOccurrence = cardOccurrence;
+        determine();
     }
 
     public HandRankingValue determine() {
@@ -74,7 +65,6 @@ public class Determinator {
     private HandRankingValue checkAbovePair() {
         //Check for RF and SF
         HandRankingValue aboveTrips = checkAboveTrips();
-
         if(aboveTrips != null)
             return aboveTrips;
         else {
@@ -147,19 +137,29 @@ public class Determinator {
         highestFour = highestKicker = -1;
         for (Integer key : this.cardOccurrence.keySet()) {
             int value = this.cardOccurrence.get(key);
-            if(value == 4 && value > highestFour)
+            if(value == 4 && key > highestFour) {
+                if(highestFour > highestKicker)
+                    highestKicker = highestFour;
                 highestFour = key;
+            }
             else
                 highestKicker = key;
         }
+//        System.out.printf("four: %d kicker: %d", highestFour, highestKicker);
 
         //Go through Cards ArrayList to get the actual cards pertaining
         ArrayList<String> validHand = new ArrayList<>();
-        for(int i = 0; i < this.cards.size(); i++) {
-            Card c = this.cards.get(i);
+        Collections.sort(this.cards, Card.COMPARE_BY_VALUE);
+
+        //Get the 4s
+        for(Card c : this.cards) {
             if(c.sameValue(highestFour))
                 validHand.add(c.toString());
-            else if(c.sameValue(highestKicker))
+        }
+
+        //Get the kicker
+        for(Card c : this.cards) {
+            if(c.sameValue(highestKicker) && validHand.size() < 5)
                 validHand.add(c.toString());
         }
         this.cardHand = new CardHand(validHand.toArray(new String[0]));
@@ -180,9 +180,10 @@ public class Determinator {
                 highestThree = key;
             }
         }
-        if (highestTwo == -1 || highestThree == -1)
-            //FullHouse only possible with 2s and 3s
+        if (highestTwo == -1 || highestThree == -1) {
             return false;
+        }
+            //FullHouse only possible with 2s and 3s
 
         ArrayList<String> validHand = new ArrayList<>();
         int twosCount, threesCount;
@@ -288,9 +289,9 @@ public class Determinator {
             int value = this.cardOccurrence.get(key);
             if (value == 2) {
                 if (key > highTwo) {
-                    lowTwo = highTwo;
                     if(lowTwo > kicker)
                         kicker = lowTwo;
+                    lowTwo = highTwo;
                     highTwo = key;
                 }
                 else if (key > lowTwo) {
@@ -303,16 +304,24 @@ public class Determinator {
                         kicker = key;
                 }
             }
-            else
-                if(key > kicker)
+            else {
+                if (key > kicker)
                     kicker = key;
+            }
         }
         if(highTwo == -1 || lowTwo == -1 || kicker == -1)
             return false;
         ArrayList<String> validHands = new ArrayList<>();
-        for(int i = 0; i < this.cards.size(); i++) {
-            Card c = this.cards.get(i);
-            if(c.sameValue(highTwo) || c.sameValue(lowTwo) || c.sameValue(kicker))
+
+        //Add the pairs
+        for(Card c : this.cards) {
+            if(c.sameValue(highTwo) || c.sameValue(lowTwo))
+                validHands.add(c.toString());
+        }
+
+        //Add the kicker
+        for(Card c : this.cards) {
+            if(c.sameValue(kicker) && validHands.size() < 5)
                 validHands.add(c.toString());
         }
         this.cardHand = new CardHand(validHands.toArray(new String[0]));

@@ -1,7 +1,5 @@
 package poker;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import poker.hands.*;
 
 import java.util.ArrayList;
@@ -11,8 +9,7 @@ import java.util.HashMap;
 
 
 public class CardHand {
-    Logger logger = LoggerFactory.getLogger(CardHand.class);
-	
+
 	private boolean isConsecutive;
 	private boolean isSameSuit;
 
@@ -87,15 +84,15 @@ public class CardHand {
 		determineHand();
 	}
 
-	public HandRankingValue findBestHand() {
-	    Determinator determinator = new Determinator(this.handList, this.cardValues, this.cardOccurrence);
-	    HandRankingValue bestRank = determinator.determine();
-	    logger.info(determinator.toString());
-	    return bestRank;
+	public String findBestHand() {
+	    Determinator determinator = new Determinator(this.handList, this.cardOccurrence);
+//	    HandRankingValue bestRank = determinator.determine();
+	    System.out.println(determinator.toString());
+	    return determinator.toString();
     }
 
 
-    private void determineHand() {
+    public void determineHand() {
 	    int keyCount = this.cardOccurrence.keySet().size();
 	    switch (keyCount) {
             case 2: //4 of a kind or full house
@@ -125,8 +122,7 @@ public class CardHand {
         Full House: 3, 2
      */
     private void handle2Key() {
-        int value = cardOccurrence.get(cardOccurrence.keySet().toArray()[0]);
-        if(value == 1 || value == 4) {
+        if(cardOccurrence.containsValue(1) || cardOccurrence.containsValue(4)) {
             // 4 Of a Kind
             this.handRankingValue = HandRankingValue.FOUROFAKIND;
             this.hand = new Quads(this, this.cardValues, cardOccurrence);
@@ -197,21 +193,16 @@ public class CardHand {
         return this.hand.compare(secondHand.hand);
     }
 
-    public void sortByValueAndRank(ArrayList<Card> list) {
-        logger.info("Before: " + list.toString());
-        for(int i = 0; i < list.size() - 1; i++) {
-            Card first = list.get(i);
-            Card second = list.get(i + 1);
-            logger.info("firstSuit: " + first.getSuit() + " secondSuit: " + second.getSuit());
-            if(first.getSuit() < second.getSuit())
-                Collections.swap(list, i, i+1);
-/*            else if(first.getSuit() == second.getSuit() && first.getValue() < second.getValue())
-                Collections.swap(list, i, i+1);*/
-        }
-        logger.info("After: " + list.toString());
-    }
     @Override
     public String toString() {
-        return this.handList.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Rank: ");
+        sb.append(this.handRankingValue);
+        sb.append(", values: ");
+        for(Card c : this.handList) {
+            sb.append(c.prettyCard());
+            sb.append(" ");
+        }
+        return sb.toString();
     }
 }

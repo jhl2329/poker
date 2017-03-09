@@ -1,0 +1,8 @@
+["10C", "JC", "QC", "KC", "AC", "AC"]
+["10C", "JC", "QC", "KC", "AC"]
+["10C", "JC", "QC", "KC", "AC", "9D"]
+["9C", "8C", "7C", "6C", "5C"]
+["AH", "AC", "AD", "AS", "KH"]
+["AH", "AC", "KS", "KD", "QC"]
+["AH", "AC", "KH", "QS", "JD"]
+["AH", "KS", "QD", "JS", "9C"]
